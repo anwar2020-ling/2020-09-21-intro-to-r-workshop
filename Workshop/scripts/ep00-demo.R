@@ -17,3 +17,7 @@ ggplot(diamonds) +
 # Display where my remote Git repository is ... can help with trouble shooting
 
 # system("git remote show origin")
+
+# this to save the updated version 
+
+# uodate and save 
