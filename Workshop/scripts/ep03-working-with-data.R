@@ -32,7 +32,10 @@ download.file(url = "https://ndownloader.figshare.com/files/2292169",
 # Lets get started!
 #------------------
 
-
+library(tidyverse)
+# dplayr and tidyvers
+#load dataset
+surveys <- read_csv("data_raw/portal_data_joined.csv")
 
 
 
@@ -40,10 +43,18 @@ download.file(url = "https://ndownloader.figshare.com/files/2292169",
 #-----------------------------------
 # Selecting columns & filtering rows
 #-----------------------------------
+select(surveys_complete, plot_id, species_id, weight)
+select(surveys_complete, - record_id, - species_id)
 
+# filter 
+sur_1995 <- filter(surveys, year == 1995)
 
+# survery 2 
 
+sur_2 <- filter(surveys, wight <5)
+sur_sml <-  select(sur_2, species_id, sex , wight)
 
+surv_sml <-  select(filter(surveys, wieght < 5), species_id, sex , wight)
 
 
 
@@ -51,7 +62,21 @@ download.file(url = "https://ndownloader.figshare.com/files/2292169",
 # Pipes
 #-------
 
+#-----------------------------------
+# Selecting columns & filtering rows
+#-----------------------------------
+# selects columns plot_id, species_id and weight from data 'surveys'
+select(surveys, plot_id, species_id, weight) 
 
+# selects all columns except record_id and species_id
+select(surveys, -record_id, -species_id) 
+
+# Filter for a particular year
+surveys_1995 <- filter(surveys, year == 1995)
+
+surveys2 <- filter(surveys, weight < 5)
+surveys_sml <- select(surveys2, species_id, sex, weight)
+surveys_sml <- select(filter(surveys, weight < 5), species_id, sex, weight)
 
 
 
@@ -64,15 +89,20 @@ download.file(url = "https://ndownloader.figshare.com/files/2292169",
 # retain only the columns ```year```, ```sex```, and ```weight```.
 
 
+animal_1995 <-  surveys %>% filter( year < 1995) %>% select(sex,year, weight)
 
-
-
+# ordering colms matters 
 #--------
 # Mutate
 #--------
 
+ surveys %>% 
+  mutate(weight_kg = weight / 1000, 
+         weight_lb = weight_kg*2.2) %>% 
+  tail()
 
-
+surveys %>% filter(!is.na(weight)) %>% 
+  mutate(weight_kg = weight / 1000) %>% head()
 
 
 
@@ -87,19 +117,42 @@ download.file(url = "https://ndownloader.figshare.com/files/2292169",
 
 # Hint: think about how the commands should be ordered to produce this data frame!
 
+new_data <- surveys  %>% mutate(hindfoot_cm = hindfoot_length / 100) %>% 
+  filter(!is.na(hindfoot_cm), hindfoot_cm < 3)%>%  select(species_id, hindfoot_cm)
 
-
+# the right answer
+new_dataframe <- surveys %>% 
+  filter(!is.na(hindfoot_length)) %>% 
+  mutate(hindfoot_cm = hindfoot_length / 10) %>% 
+  select(species_id, hindfoot_cm) %>% 
+  filter(hindfoot_cm < 3)
 
 
 #---------------------
 # Split-apply-combine
 #---------------------
+xx <- surveys %>% group_by(sex) %>%  
+  summarise(mean_weight = mean(weight, na.rm = T))
+
+  summary(surveys)
 
 
-
-
-
-
+  
+  surveys %>% filter(! is.na(weight), !is.na(sex)) %>% 
+    group_by(sex , species_id) %>% 
+    summarise(mean_weight = mean(weight)) %>%  
+    print(20)
+  
+# counting
+  surveys %>% count(sex)
+  
+  surveys %>%  group_by(sex) %>% 
+    summarise(count = n ())
+  
+  
+  surveys %>%  
+    group_by( sex, plot_type, species_id) %>% 
+    summarise(count = n ())
 #-----------
 # CHALLENGE
 #-----------
